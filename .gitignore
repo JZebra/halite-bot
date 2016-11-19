@@ -2,3 +2,5 @@ halite
 __pycache__/
 hlt.pyc
 networking.pyc
+*.log
+*.hlt
