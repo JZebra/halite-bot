@@ -4,7 +4,6 @@ from hlt import *
 from networking import *
 
 logging.basicConfig(filename='middleOut.log',level=logging.DEBUG)
-# _log = logging.getLogger(__name__)
 
 myID, gameMap = getInit()
 STR_CAP = 255
