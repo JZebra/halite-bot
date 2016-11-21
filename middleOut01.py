@@ -36,33 +36,12 @@ def can_capture(src_site, dest_site):
 
 def capture(location):
     site = gameMap.getSite(location)
-    # has_enemies = False
     for direction in CARDINALS: 
         neighbor = gameMap.getSite(location, direction)
         is_friendly = neighbor.owner == site.owner
         if can_capture(site, neighbor) and not is_friendly:
             return Move(location, direction)
     return None
-
-
-# def reinforce(location):
-#     site = gameMap.getSite(location)
-#     # default values
-#     strongest_neighbor = Site(strength=0)
-#     target_direction = None
-
-#     for direction in CARDINALS:
-#         neighbor = gameMap.getSite(location, direction)
-#         is_friendly = neighbor.owner == site.owner
-
-#         if neighbor.strength > strongest_neighbor.strength and is_friendly and neighbor.strength + strongest_neighbor.strength < STR_CAP:
-#             strongest_neighbor = neighbor
-#             target_direction = direction
-
-#     if target_direction:
-#         return Move(location, target_direction)
-#     else:
-#         return Move(location, STILL)
 
 
 def should_farm(location):
