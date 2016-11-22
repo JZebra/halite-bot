@@ -4,11 +4,11 @@ import math
 from hlt import *
 from networking import *
 
-logging.basicConfig(filename='middleOut01.log',level=logging.DEBUG)
+logging.basicConfig(filename='middleOut02.log',level=logging.DEBUG)
 
 myID, gameMap = getInit()
 STR_CAP = 255
-sendInit("middle_out_01")
+sendInit("middle_out_02")
 
 
 def move(location, border_map):
@@ -63,23 +63,24 @@ def should_march(location, border_map):
 
     # Don't move if we can't capture the target
     target_site = gameMap.getSite(target_location)
-    if not can_capture(site, target_site):
+    if best_distance >= 2: 
+        diff_x = location.x - target_location.x
+        diff_y = location.y - target_location.y
+        if abs(diff_x) > abs(diff_y):
+            if diff_y > 0:
+                direction = EAST
+            else:
+                direction = WEST
+        else:
+            if diff_x > 0:
+                direction = SOUTH
+            else:
+                direction = NORTH
+
+        return Move(location, direction)
+    else:
         return Move(location, STILL)
 
-    diff_x = location.x - target_location.x
-    diff_y = location.y - target_location.y
-    if abs(diff_x) > abs(diff_y):
-        if diff_y > 0:
-            direction = EAST
-        else:
-            direction = WEST
-    else:
-        if diff_x > 0:
-            direction = SOUTH
-        else:
-            direction = NORTH
-
-    return Move(location, direction)
 
 
 def is_boundary(location):
