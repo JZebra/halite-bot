@@ -40,6 +40,14 @@ def can_capture(src_site, dest_site):
     return False
 
 
+def capture_score(site):
+    """Site production is not correlated with strength
+    """
+    # default value
+    site_strength = site.strength or 1
+    return float(site.production) / float(site_strength)
+
+
 def can_be_countered(src_site, dest_site):
     """Returns true if a capturing move can be countered
     """
@@ -55,12 +63,22 @@ def can_be_countered(src_site, dest_site):
 
 def capture(location):
     site = game_map.getSite(location)
+    best_score = 0
+    capture_dir = None
+
     for direction in CARDINALS: 
         neighbor = game_map.getSite(location, direction)
         is_friendly = neighbor.owner == site.owner
         if can_capture(site, neighbor) and not is_friendly:
-            return Move(location, direction)
-    return None
+            score = capture_score(neighbor)
+            if score > best_score:
+                best_score = score
+                capture_dir = direction
+
+    if capture_dir:
+        return Move(location, capture_dir)
+    else:
+        return None
 
 
 def should_farm(location):
