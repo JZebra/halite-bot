@@ -4,7 +4,7 @@ import math
 from hlt import *
 from networking import *
 
-logging.basicConfig(filename='middleOut01.log',level=logging.DEBUG)
+# logging.basicConfig(filename='middleOut01.log',level=logging.DEBUG)
 
 myID, gameMap = getInit()
 STR_CAP = 255
@@ -17,16 +17,13 @@ def move(location, border_map):
     # capture neighbor if possible
     capture_move = capture(location)
     if capture_move:
-        logging.info('capturing move')
         return capture_move
 
     # farm if needed
     if should_farm(location):
-        logging.info('farming move')
         return Move(location, STILL)
 
     # move outwards towards nearest border
-    logging.info('marching')
     return should_march(location, border_map)
 
 def can_capture(src_site, dest_site):
