@@ -2,15 +2,17 @@ import logging
 import math
 import pdb
 
+from action import Action
 from hlt import *
 from networking import *
 # from socket_networking import *
 
-logging.basicConfig(filename='middleOut02.log',level=logging.DEBUG)
+logging.basicConfig(filename='middleOut02.log', level=logging.DEBUG)
 
 my_id, game_map = getInit()
 neutral_id = 0
 STR_CAP = 255
+last_actions = []
 sendInit("middle_out_02")
 
 
@@ -27,7 +29,7 @@ def move(location, border_map):
         return Move(location, STILL)
 
     # move outwards towards nearest border
-    return should_march(location, border_map)
+    return march(location, border_map)
 
 
 def is_enemy(site):
@@ -35,7 +37,7 @@ def is_enemy(site):
 
 
 def can_capture(src_site, dest_site):
-    if src_site.strength > dest_site.strength and not can_be_countered(src_site, dest_site):
+    if src_site.owner != dest_site.owner and src_site.strength > dest_site.strength and not can_be_countered(src_site, dest_site):
         return True
     return False
 
@@ -52,7 +54,7 @@ def can_be_countered(src_site, dest_site):
     """Returns true if a capturing move can be countered
     """
     next_str = src_site.strength - dest_site.strength
-    for direction in CARDINALS: 
+    for direction in CARDINALS:
         neighbor = game_map.getSite(location, direction)
         if is_enemy(neighbor):
             enemy_next_str = neighbor.strength + neighbor.production
@@ -66,10 +68,9 @@ def capture(location):
     best_score = 0
     capture_dir = None
 
-    for direction in CARDINALS: 
+    for direction in CARDINALS:
         neighbor = game_map.getSite(location, direction)
-        is_friendly = neighbor.owner == site.owner
-        if can_capture(site, neighbor) and not is_friendly:
+        if can_capture(site, neighbor):
             score = capture_score(neighbor)
             if score > best_score:
                 best_score = score
@@ -86,38 +87,75 @@ def should_farm(location):
     return site.strength < site.production * 5
 
 
-def should_march(location, border_map):
+def march(location, border_map):
     site = game_map.getSite(location)
     # initialize to largest map
-    best_distance = 255
     target_location = None
+    previous_dir = None
+    global last_actions
 
+    # continue moving in the same direction if we marched before
+    # if any(action.has_same_end(location) for action in last_actions)
+
+
+    # for action in last_actions:
+    #     previous_dest = action[1]
+    #     if previous_dest.x == location.x and previous_dest.y == location.y:
+    #         previous_dir = action[2]
+    #         last_actions.remove(action)
+
+        # add to action log
+    dir_to_border = direction_to_border(location, border_map)
+    direction = previous_dir or dir_to_border or STILL
+    dest_location = game_map.getLocation(location, direction)
+
+    last_actions.append(tuple([location, dest_location, direction]))
+
+    return Move(location, direction)
+
+
+def is_stored_destination(location):
+    return any(action.has_same_end(location) for action in last_actions)
+
+
+def store_action(action):
+    """Stores actions in a global variable.
+    Returns False and does not store the action if the destination exists in
+    an existing action
+    """
+    if is_stored_destination(action.end):
+        return False
+    else:
+        global last_actions
+        last_actions.append(action)
+        return True
+
+
+
+def direction_to_border(location, border_map):
+    best_distance = 255
     for border_location in border_map:
         distance = game_map.getDistance(location, border_location)
         if distance < best_distance:
             best_distance = distance
             target_location = border_location
 
-    # Don't move if we can't capture the target
-    target_site = game_map.getSite(target_location)
-    if best_distance >= 2: 
-        diff_x = location.x - target_location.x
-        diff_y = location.y - target_location.y
-        if abs(diff_x) > abs(diff_y):
-            if diff_y > 0:
+    # location is not at the border
+    if best_distance >= 2:
+        dx = location.x - target_location.x
+        dy = location.y - target_location.y
+        if abs(dx) > abs(dy):
+            if dx > 0:
                 direction = EAST
             else:
                 direction = WEST
         else:
-            if diff_x > 0:
+            if dy > 0:
                 direction = SOUTH
             else:
                 direction = NORTH
-
-        return Move(location, direction)
-    else:
-        return Move(location, STILL)
-
+        return direction
+    return None
 
 
 def is_boundary(location):
@@ -133,6 +171,8 @@ def is_boundary(location):
 
 
 def generate_borders(game_map):
+    """Returns a list of the outer boundary tiles
+    """
     boundary_tiles = []
     for y in range(game_map.height):
         for x in range(game_map.width):
