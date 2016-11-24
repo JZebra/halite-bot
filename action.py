@@ -12,11 +12,11 @@ class Action:
         return NotImplemented
 
     def __ne__(self, other):
-        if isinstance(other, self.__class):
+        if isinstance(other, self.__class__):
             return not self.__eq__(other)
         return NotImplemented
 
-    def has_same_end(self, location):
+    def has_end(self, location):
         """Use this to compare two Locations because Locations that
         have the same coordinates can still be different objects
         """
