@@ -87,35 +87,38 @@ def should_farm(location):
     return site.strength < site.production * 5
 
 
-def march(location, border_map):
-    site = game_map.getSite(location)
+def march(src, border_map):
+    """Determines a direction to move
+    Params
+    src - Location object
+    border_map - a list of Locations, denotes the outer border of bot territory
+
+    Returns
+    move - Move object
+    """
     # initialize to largest map
-    target_location = None
-    previous_dir = None
+    direction = None
     global last_actions
 
     # continue moving in the same direction if we marched before
-    # if any(action.has_same_end(location) for action in last_actions)
+    for action in last_actions:
+        if action.has_end(src):
+            direction = action.direction
+            last_actions.remove(action)
+            break
 
+    # add to last_actions
+    if not direction:
+        direction = direction_to_border(src, border_map)
 
-    # for action in last_actions:
-    #     previous_dest = action[1]
-    #     if previous_dest.x == location.x and previous_dest.y == location.y:
-    #         previous_dir = action[2]
-    #         last_actions.remove(action)
-
-        # add to action log
-    dir_to_border = direction_to_border(location, border_map)
-    direction = previous_dir or dir_to_border or STILL
-    dest_location = game_map.getLocation(location, direction)
-
-    last_actions.append(tuple([location, dest_location, direction]))
-
-    return Move(location, direction)
+    dest = game_map.getLocation(src, direction)
+    action = Action(src, dest, direction)
+    store_action(action)
+    return Move(src, direction)
 
 
 def is_stored_destination(location):
-    return any(action.has_same_end(location) for action in last_actions)
+    return any(action.has_end(location) for action in last_actions)
 
 
 def store_action(action):
@@ -131,8 +134,9 @@ def store_action(action):
         return True
 
 
-
 def direction_to_border(location, border_map):
+    """Returns a direction. Returns STILL if location is adjacent to border
+    """
     best_distance = 255
     for border_location in border_map:
         distance = game_map.getDistance(location, border_location)
@@ -155,7 +159,7 @@ def direction_to_border(location, border_map):
             else:
                 direction = NORTH
         return direction
-    return None
+    return STILL
 
 
 def is_boundary(location):

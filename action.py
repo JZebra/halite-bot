@@ -18,10 +18,8 @@ class Action:
 
     def has_end(self, location):
         """Use this to compare two Locations because Locations that
-        have the same coordinates can still be different objects
+        have the same coordinates can still be different objects under ==
         """
         return self.end.__dict__ == location.__dict__
 
     # because we don't override __hash__(), sets will not function as expected
-    # def __hash__(self):
-    #     return hash(tuple(sorted(self.__dict__.items())))
