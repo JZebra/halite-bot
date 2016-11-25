@@ -73,7 +73,7 @@ class MiddleOutBot:
         return False
 
     def capture(self, location):
-        best_score = 0
+        best_score = -1
         capture_dir = None
         site = self.game_map.getSite(location)
 
@@ -127,8 +127,7 @@ class MiddleOutBot:
         return any(action.has_end(location) for action in self.last_actions)
 
     def store_action(self, action):
-        """Stores actions in a global variable.
-        Returns False and does not store the action if the destination exists
+        """Returns False and does not store the action if the destination exists
         in an existing action
         """
         if self.is_stored_destination(action.end):
