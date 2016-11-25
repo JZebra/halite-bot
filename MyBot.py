@@ -1,14 +1,14 @@
 from hlt import *
+from middle_out_bot import MiddleOutBot
 from networking import *
+# from socket_networking import *
 
-myID, gameMap = getInit()
-sendInit("MyPythonBot")
+my_id, game_map = getInit()
+sendInit("middle_out_02")
+bot = MiddleOutBot(my_id)
 
 while True:
     moves = []
-    gameMap = getFrame()
-    for y in range(gameMap.height):
-        for x in range(gameMap.width):
-            if gameMap.getSite(Location(x, y)).owner == myID:
-                moves.append(Move(Location(x, y), int(random.random() * 5)))
+    game_map = getFrame()
+    moves = bot.generate_moves(game_map)
     sendFrame(moves)

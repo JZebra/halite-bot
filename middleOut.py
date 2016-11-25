@@ -3,7 +3,7 @@ import logging
 from hlt import *
 from networking import *
 
-logging.basicConfig(filename='middleOut.log',level=logging.DEBUG)
+# logging.basicConfig(filename='middleOut.log',level=logging.DEBUG)
 
 myID, gameMap = getInit()
 STR_CAP = 255
@@ -16,23 +16,23 @@ def move(location):
     # capture neighbor if possible
     capture_move = capture(location)
     if capture_move:
-        logging.info('capturing move')
+        # logging.info('capturing move')
         return capture_move
 
     # farm if needed
     if should_farm(location):
-        logging.info('farming move')
+        # logging.info('farming move')
         return Move(location, STILL)
 
     # if no enemies and above critical size, move to neighbor with highest piece value
-    logging.info('reinforcing move')
+    # logging.info('reinforcing move')
 
     return reinforce(location)
 
 def capture(location):
     site = gameMap.getSite(location)
     has_enemies = False
-    for direction in CARDINALS: 
+    for direction in CARDINALS:
         neighbor = gameMap.getSite(location, direction)
         is_friendly = neighbor.owner == site.owner
         if neighbor.strength < site.strength and not is_friendly:
