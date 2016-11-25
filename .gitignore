@@ -4,3 +4,4 @@ hlt.pyc
 networking.pyc
 *.log
 *.hlt
+*.pyc
