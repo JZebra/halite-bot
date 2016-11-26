@@ -1,3 +1,9 @@
+"""First bot submitted to Halite.
+
+Errors on 50x50 maps
+"""
+
+
 import logging
 import pdb
 
@@ -7,7 +13,7 @@ from networking import *
 # from socket_networking import *
 
 
-class MiddleOutBot:
+class JZBot:
 
     def __init__(self, bot_id):
         self.bot_id = bot_id
