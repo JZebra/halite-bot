@@ -3,8 +3,10 @@ import pdb
 
 from action import Action
 from hlt import *
-from networking import *
-# from socket_networking import *
+from quadtree import Node, QuadTree
+
+logging.basicConfig(filename='bot.log', level=logging.DEBUG)
+_log = logging.getLogger(__name__)
 
 
 class JZBot:
@@ -15,17 +17,26 @@ class JZBot:
         self.str_cap = 255
         self.last_actions = []
 
+        # territory edges
+        self.rightmost_x = 0
+        self.bottommost_y = 255
+        self.topmost_y = 0
+        self.distances = {}
+
     def generate_moves(self, game_map):
         """Public interface with bot runner
         """
         moves = []
         self.game_map = game_map
-        self.border_map = self.generate_borders(game_map)
+        self.tree = self.gen_quadtree(game_map)
+        # _log.info('right_x: {0}, top_y: {1}, bottom_y: {2}'.format(self.rightmost_x, self.topmost_y, self.bottommost_y))
 
         for y in range(self.game_map.height):
             for x in range(self.game_map.width):
                 location = Location(x, y)
-                if self.game_map.getSite(location).owner == self.bot_id:
+                site = self.game_map.getSite(location)
+                # pdb.set_trace()
+                if site.is_friendly():
                     moves.append(self.move(location))
         return moves
 
@@ -139,49 +150,34 @@ class JZBot:
     def direction_to_border(self, location):
         """Returns a direction. Returns STILL if location is adjacent to border
         """
-        best_distance = 255
-        for border_location in self.border_map:
-            distance = self.game_map.getDistance(location, border_location)
-            if distance < best_distance:
-                best_distance = distance
-                target_location = border_location
+        return NORTH
 
-        # location is not at the border
-        if best_distance >= 2:
-            dx = location.x - target_location.x
-            dy = location.y - target_location.y
-            if abs(dx) > abs(dy):
-                if dx > 0:
-                    direction = EAST
-                else:
-                    direction = WEST
-            else:
-                if dy > 0:
-                    direction = SOUTH
-                else:
-                    direction = NORTH
-            return direction
-        return STILL
+    def gen_quadtree(self, game_map):
+        rect = 0, 0, game_map.width, game_map.height
+        root = Node(parent=None, rect=rect)
+        tree = QuadTree(root, 2)
+        return tree
 
-    def is_boundary(self, location):
-        site = self.game_map.getSite(location)
-        if site.owner == self.bot_id:
-            return False
 
-        for direction in CARDINALS:
-            neighbor = self.game_map.getSite(location, direction)
-            if neighbor.owner == site.owner:
-                return True
-        return False
+    # def is_boundary(self, location):
+    #     site = self.game_map.getSite(location)
+    #     if site.owner == self.bot_id:
+    #         return False
 
-    def generate_borders(self, game_map):
-        """Returns a list of the outer boundary tiles
-        """
-        boundary_tiles = []
-        for y in range(self.game_map.height):
-            for x in range(self.game_map.width):
-                location = Location(x, y)
-                if self.is_boundary(location):
-                    boundary_tiles.append(location)
+    #     for direction in CARDINALS:
+    #         neighbor = self.game_map.getSite(location, direction)
+    #         if neighbor.owner == site.owner:
+    #             return True
+    #     return False
 
-        return boundary_tiles
+    # def generate_borders(self, game_map):
+    #     """Returns a list of the outer boundary tiles
+    #     """
+    #     boundary_tiles = []
+    #     for y in range(self.game_map.height):
+    #         for x in range(self.game_map.width):
+    #             location = Location(x, y)
+    #             if self.is_boundary(location):
+    #                 boundary_tiles.append(location)
+
+    #     return boundary_tiles

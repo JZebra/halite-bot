@@ -14,22 +14,43 @@ CARDINALS = [a for a in range(1, 5)]
 ATTACK = 0
 STOP_ATTACK = 1
 
+NEUTRAL_ID = 0
+
 class Location:
     def __init__(self, x=0, y=0):
         self.x = x
         self.y = y
+
+    def __repr__(self):
+        return "{0}, {1}".format(self.x, self.y)
+
+
 class Site:
-    def __init__(self, owner=0, strength=0, production=0):
+    def __init__(self, owner=0, strength=0, production=0, x=0, y=0, bot_id=None):
         self.owner = owner
         self.strength = strength
         self.production = production
+        self.x = x
+        self.y = y
+        self.bot_id = bot_id
+
+    def is_friendly(self):
+        return self.owner == self.bot_id
+
+    def is_neutral(self):
+        return self.owner == NEUTRAL_ID
+
+    def is_enemy(self):
+        return self.owner != self.bot_id
+
 class Move:
     def __init__(self, loc=0, direction=0):
         self.loc = loc
         self.direction = direction
 
+
 class GameMap:
-    def __init__(self, width = 0, height = 0, numberOfPlayers = 0):
+    def __init__(self, width=0, height=0, numberOfPlayers=0, bot_id=None):
         self.width = width
         self.height = height
         self.contents = []
@@ -37,7 +58,7 @@ class GameMap:
         for y in range(0, self.height):
             row = []
             for x in range(0, self.width):
-                row.append(Site(0, 0, 0))
+                row.append(Site(0, 0, 0, x, y, bot_id))
             self.contents.append(row)
 
     def inBounds(self, l):
@@ -91,6 +112,7 @@ class GameMap:
                 else:
                     l.x -= 1
         return l
+
     def getSite(self, l, direction = STILL):
         l = self.getLocation(l, direction)
         return self.contents[l.y][l.x]
