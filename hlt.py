@@ -88,9 +88,9 @@ class GameMap:
             dy += self.height
         return math.atan2(dy, dx)
 
-    def getLocation(self, loc, direction):
-        l = copy.deepcopy(loc)
+    def getLocation(self, l, direction):
         if direction != STILL:
+            l = copy.deepcopy(l)
             if direction == NORTH:
                 if l.y == 0:
                     l.y = self.height - 1
