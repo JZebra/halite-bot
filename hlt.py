@@ -16,6 +16,7 @@ STOP_ATTACK = 1
 
 NEUTRAL_ID = 0
 
+
 class Location:
     def __init__(self, x=0, y=0):
         self.x = x
@@ -34,7 +35,7 @@ class Site:
         self.y = y
         self.bot_id = bot_id
 
-    def is_friendly(self):
+    def is_friend(self):
         return self.owner == self.bot_id
 
     def is_neutral(self):
@@ -42,6 +43,7 @@ class Site:
 
     def is_enemy(self):
         return self.owner != self.bot_id
+
 
 class Move:
     def __init__(self, loc=0, direction=0):

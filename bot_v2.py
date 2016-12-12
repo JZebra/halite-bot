@@ -3,7 +3,8 @@ import pdb
 
 from action import Action
 from hlt import *
-from quadtree import Node, QuadTree
+from node import MapNode
+from quadtree import QuadTree
 
 logging.basicConfig(filename='bot.log', level=logging.DEBUG)
 _log = logging.getLogger(__name__)
@@ -29,14 +30,13 @@ class JZBot:
         moves = []
         self.game_map = game_map
         self.tree = self.gen_quadtree(game_map)
-        # _log.info('right_x: {0}, top_y: {1}, bottom_y: {2}'.format(self.rightmost_x, self.topmost_y, self.bottommost_y))
 
         for y in range(self.game_map.height):
             for x in range(self.game_map.width):
                 location = Location(x, y)
                 site = self.game_map.getSite(location)
                 # pdb.set_trace()
-                if site.is_friendly():
+                if site.is_friend():
                     moves.append(self.move(location))
         return moves
 
@@ -154,30 +154,6 @@ class JZBot:
 
     def gen_quadtree(self, game_map):
         rect = 0, 0, game_map.width, game_map.height
-        root = Node(parent=None, rect=rect)
-        tree = QuadTree(root, 2)
+        root = MapNode(None, rect, self.game_map)
+        tree = QuadTree(root, 1)
         return tree
-
-
-    # def is_boundary(self, location):
-    #     site = self.game_map.getSite(location)
-    #     if site.owner == self.bot_id:
-    #         return False
-
-    #     for direction in CARDINALS:
-    #         neighbor = self.game_map.getSite(location, direction)
-    #         if neighbor.owner == site.owner:
-    #             return True
-    #     return False
-
-    # def generate_borders(self, game_map):
-    #     """Returns a list of the outer boundary tiles
-    #     """
-    #     boundary_tiles = []
-    #     for y in range(self.game_map.height):
-    #         for x in range(self.game_map.width):
-    #             location = Location(x, y)
-    #             if self.is_boundary(location):
-    #                 boundary_tiles.append(location)
-
-    #     return boundary_tiles

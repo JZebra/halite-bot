@@ -1,12 +1,12 @@
 from quadtree import Node
 
 
-class MapNode:
+class MapNode(Node):
     """Extends the quadtree node class to handle the bot game_map
     """
 
     def __init__(self, parent, rect, game_map):
-        super(parent, rect)
+        super().__init__(parent, rect)
         x0, x1, y0, y1 = rect
         sites = []
         for y in range(y0, y1):
@@ -18,10 +18,10 @@ class MapNode:
         return MapNode(self, rect)
 
     def spans_feature(self, rect):
-        return self.contains_enemy(self.sites)
+        return self.contains_enemy() and self.contains_friend()
 
-    def contains_enemy(self, sites):
-        return any(site.is_enemy() for site in sites)
+    def contains_enemy(self):
+        return any(site.is_enemy() for site in self.sites)
 
-    # def is_enemy_site(self, site):
-    #     return site.owner != self.bot_id
+    def contains_friend(self):
+        return any(site.is_friend() for site in self.sites)

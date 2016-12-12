@@ -3,7 +3,7 @@
 # Implements a Node and QuadTree class that can be used as
 # base classes for more sophisticated implementations.
 # Malcolm Kesson Dec 19 2012
-class Node():
+class Node(object):
     ROOT = 0
     BRANCH = 1
     LEAF = 2
@@ -61,7 +61,7 @@ class Node():
         return False
 
 #===========================================================
-class QuadTree():
+class QuadTree(object):
     maxdepth = 1 # the "depth" of the tree
     leaves = []
     allnodes = []
