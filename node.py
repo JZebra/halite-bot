@@ -7,15 +7,16 @@ class MapNode(Node):
 
     def __init__(self, parent, rect, game_map):
         super().__init__(parent, rect)
-        x0, x1, y0, y1 = rect
+        self.game_map = game_map
+        x0, y0, x1, y1 = rect
         sites = []
-        for y in range(y0, y1):
-            for x in range(x0, x1):
+        for y in range(int(y0), int(y1)):
+            for x in range(int(x0), int(x1)):
                 sites.append(game_map.contents[y][x])
         self.sites = sites
 
     def getinstance(self, rect):
-        return MapNode(self, rect)
+        return MapNode(self, rect, self.game_map)
 
     def spans_feature(self, rect):
         return self.contains_enemy() and self.contains_friend()

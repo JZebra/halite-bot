@@ -67,12 +67,10 @@ def getString():
     return sys.stdin.readline().rstrip('\n')
 
 def getInit():
-    playerTag = int(getString())
-    deserializeMapSize(getString())
-    deserializeProductions(getString())
-    m = deserializeMap(getString())
+    bot_id = get_player_id()
+    m = get_map(bot_id)
 
-    return (playerTag, m)
+    return (bot_id, m)
 
 def get_player_id():
     playerTag = int(getString())
@@ -82,7 +80,6 @@ def get_map(bot_id):
     deserializeMapSize(getString())
     deserializeProductions(getString())
     m = deserializeMap(getString(), bot_id)
-
     return m
 
 def sendInit(name):

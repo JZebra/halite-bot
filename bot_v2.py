@@ -35,7 +35,6 @@ class JZBot:
             for x in range(self.game_map.width):
                 location = Location(x, y)
                 site = self.game_map.getSite(location)
-                # pdb.set_trace()
                 if site.is_friend():
                     moves.append(self.move(location))
         return moves

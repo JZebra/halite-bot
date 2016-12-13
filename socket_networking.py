@@ -32,10 +32,10 @@ def deserializeProductions(inputString):
             row.append(int(splitString.pop(0)))
         _productions.append(row)
 
-def deserializeMap(inputString):
+def deserializeMap(inputString, bot_id):
     splitString = inputString.split(" ")
 
-    m = GameMap(_width, _height)
+    m = GameMap(_width, _height, bot_id=bot_id)
 
     y = 0
     x = 0
@@ -82,19 +82,26 @@ def getInit():
     # port = int(2000)
     _connection.connect(('localhost', port))
     print('Connected to intermediary on port #' + str(port))
+    bot_id = get_player_id()
+    m = get_map(bot_id)
 
+    return (bot_id, m)
+
+def get_player_id():
     playerTag = int(getString())
+    return playerTag
+
+def get_map(bot_id):
     deserializeMapSize(getString())
     deserializeProductions(getString())
-    m = deserializeMap(getString())
-
-    return (playerTag, m)
+    m = deserializeMap(getString(), bot_id)
+    return m
 
 def sendInit(name):
     sendString(name)
 
-def getFrame():
-    return deserializeMap(getString())
+def getFrame(bot_id):
+    return deserializeMap(getString(), bot_id)
 
 def sendFrame(moves):
     sendString(serializeMoveSet(moves))
