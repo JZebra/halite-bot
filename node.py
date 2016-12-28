@@ -10,8 +10,8 @@ class MapNode(Node):
         self.game_map = game_map
         x0, y0, x1, y1 = rect
         sites = []
-        for y in range(int(y0), int(y1)):
-            for x in range(int(x0), int(x1)):
+        for y in range(y0, y1):
+            for x in range(x0, x1):
                 sites.append(game_map.contents[y][x])
         self.sites = sites
 
@@ -26,3 +26,6 @@ class MapNode(Node):
 
     def contains_friend(self):
         return any(site.is_friend() for site in self.sites)
+
+    def has_children(self):
+        return any(child is not None for child in self.children)

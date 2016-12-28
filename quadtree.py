@@ -1,3 +1,8 @@
+import logging
+
+logging.basicConfig(filename='bot.log', level=logging.DEBUG)
+_log = logging.getLogger(__name__)
+
 # from http://fundza.com/algorithmic/quadtree/index.html
 
 # Implements a Node and QuadTree class that can be used as
@@ -34,12 +39,13 @@ class Node(object):
         if self.type == Node.LEAF:
             return
         x0,z0,x1,z1 = self.rect
-        h = (x1 - x0)/2
+        h = round((x1 - x0)/2)
         rects = []
         rects.append( (x0, z0, x0 + h, z0 + h) )
         rects.append( (x0, z0 + h, x0 + h, z1) )
         rects.append( (x0 + h, z0 + h, x1, z1) )
         rects.append( (x0 + h, z0, x1, z0 + h) )
+
         for n in range(len(rects)):
             span = self.spans_feature(rects[n])
             if span == True:
@@ -69,7 +75,7 @@ class QuadTree(object):
     def __init__(self, rootnode, minrect):
         Node.minsize = minrect
         rootnode.subdivide() # constructs the network of nodes
-        self.prune(rootnode)
+        # self.prune(rootnode)
         self.traverse(rootnode)
     #_______________________________________________________
     # Sets children of 'node' to None if they do not have any
@@ -87,6 +93,7 @@ class QuadTree(object):
         for item in removals:
             n = node.children.index(item)
             node.children[n] = None
+
         return leafcount
     #_______________________________________________________
     # Appends all nodes to a "generic" list, but only LEAF
@@ -100,3 +107,5 @@ class QuadTree(object):
         for child in node.children:
             if child != None:
                 self.traverse(child) # << recursion
+                # if not child.has_children():
+                #     _log.warn(child.sites)

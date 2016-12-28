@@ -4,10 +4,20 @@ import pdb
 from action import Action
 from hlt import *
 from node import MapNode
-from quadtree import QuadTree
+from tree import MapTree
 
 logging.basicConfig(filename='bot.log', level=logging.DEBUG)
 _log = logging.getLogger(__name__)
+
+
+class TargetingError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
+class TreeError(Exception):
+    def __init__(self, message):
+        self.message = message
 
 
 class JZBot:
@@ -40,7 +50,7 @@ class JZBot:
         return moves
 
     def move(self, location):
-        # capture neighbor if possible
+        # capture if possible
         capture_move = self.capture(location)
         if capture_move:
             return capture_move
@@ -49,11 +59,7 @@ class JZBot:
         if self.should_farm(location):
             return Move(location, STILL)
 
-        # move outwards towards nearest border
         return self.march(location)
-
-    def is_enemy(self, site):
-        return site.owner != self.bot_id and site.owner != self.neutral_id
 
     def can_capture(self, src_site, dest_site):
         if src_site.owner != dest_site.owner and\
@@ -76,7 +82,7 @@ class JZBot:
         next_str = src_site.strength - dest_site.strength
         for direction in CARDINALS:
             neighbor = self.game_map.getSite(src_loc, direction)
-            if self.is_enemy(neighbor):
+            if neighbor.is_enemy():
                 enemy_next_str = neighbor.strength + neighbor.production
                 if next_str < enemy_next_str:
                     return True
@@ -114,24 +120,75 @@ class JZBot:
         Returns
         move - Move object
         """
-        # initialize to largest map
-        direction = None
+        target = self.find_nearest_target(src)
+        _log.info("target is {0}".format(repr(target)))
+        if not target:
+            direction = STILL
+        else:
+            direction = self.find_direction(src, target)
+
+        _log.info("direction is {0}".format(direction))
 
         # continue moving in the same direction if we marched before
-        for action in self.last_actions:
-            if action.has_end(src):
-                direction = action.direction
-                self.last_actions.remove(action)
-                break
+        # for action in self.last_actions:
+        #     if action.has_end(src):
+        #         direction = action.direction
+        #         self.last_actions.remove(action)
+        #         break
 
-        # add to last_actions
-        if not direction:
-            direction = self.direction_to_border(src)
+        # # add to last_actions
+        # if not direction:
+        #     direction = self.direction_to_border(src)
 
-        dest = self.game_map.getLocation(src, direction)
-        action = Action(src, dest, direction)
-        self.store_action(action)
+        # dest = self.game_map.getLocation(src, direction)
+        # action = Action(src, dest, direction)
+        # self.store_action(action)
+
         return Move(src, direction)
+
+    def find_nearest_target(self, loc):
+        """Traverses the quadtree to find the nearest enemy or neutral site.
+        Returns False if loc is already adjacent to an enemy or neutral site
+        """
+        src = self.game_map.getSite(loc)
+        node = self.tree.find_node(src)
+        if not node:
+            raise TreeError("could not find a node with {0}".format(src))
+
+        # default to large number
+        best_distance = 255
+        target = None
+
+        # move up a level to look for targets
+        for dest in node.parent.sites:
+            if not dest.is_friend():
+                distance = self.game_map.getDistance(src, dest)
+                if distance < best_distance:
+                    best_distance = distance
+                    target = dest
+        if not target:
+            raise TargetingError("find_nearest_target did not find a target")
+
+        if best_distance == 1:
+            return False
+        else:
+            return target
+
+    def find_direction(self, src, dest):
+        """Params can be Locations or Sites
+        """
+        dx = dest.x - src.x
+        dy = dest.y - src.y
+        if abs(dx) > abs(dy):
+            if dx > 0:
+                return EAST
+            else:
+                return WEST
+        else:
+            if dy > 0:
+                return SOUTH
+            else:
+                return NORTH
 
     def is_stored_destination(self, location):
         return any(action.has_end(location) for action in self.last_actions)
@@ -146,13 +203,8 @@ class JZBot:
             self.last_actions.append(action)
             return True
 
-    def direction_to_border(self, location):
-        """Returns a direction. Returns STILL if location is adjacent to border
-        """
-        return NORTH
-
     def gen_quadtree(self, game_map):
         rect = 0, 0, game_map.width, game_map.height
         root = MapNode(None, rect, self.game_map)
-        tree = QuadTree(root, 1)
+        tree = MapTree(root, 1)
         return tree

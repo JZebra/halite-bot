@@ -78,8 +78,8 @@ def getInit():
     # Connect to environment.
     global _connection
     _connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    port = int(input('Enter the port on which to connect: '))
-    # port = int(2000)
+    # port = int(input('Enter the port on which to connect: '))
+    port = int(3000)
     _connection.connect(('localhost', port))
     print('Connected to intermediary on port #' + str(port))
     bot_id = get_player_id()

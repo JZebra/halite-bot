@@ -35,6 +35,12 @@ class Site:
         self.y = y
         self.bot_id = bot_id
 
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+
+    def __repr__(self):
+        return "{0}, {1}".format(self.x, self.y)
+
     def is_friend(self):
         return self.owner == self.bot_id
 
