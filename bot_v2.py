@@ -39,6 +39,8 @@ class JZBot:
         """
         moves = []
         self.game_map = game_map
+        pdb.set_trace()
+
         self.tree = self.gen_quadtree(game_map)
 
         for y in range(self.game_map.height):

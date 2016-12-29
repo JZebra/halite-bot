@@ -64,7 +64,15 @@ def sendString(toBeSent):
     sys.stdout.flush()
 
 def getString():
-    return sys.stdin.readline().rstrip('\n')
+    string = sys.stdin.readline().rstrip('\n')
+
+    import logging
+
+    logging.basicConfig(filename='networking.log', level=logging.DEBUG)
+    _log = logging.getLogger(__name__)
+    _log.info(string)
+
+    return string
 
 def getInit():
     bot_id = get_player_id()
