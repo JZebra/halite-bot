@@ -22,24 +22,18 @@ class TreeError(Exception):
 
 class JZBot:
 
-    def __init__(self, bot_id):
+    def __init__(self, bot_id, game_map):
         self.bot_id = bot_id
         self.neutral_id = 0
         self.str_cap = 255
         self.last_actions = []
-
-        # territory edges
-        self.rightmost_x = 0
-        self.bottommost_y = 255
-        self.topmost_y = 0
-        self.distances = {}
+        self.game_map = game_map
 
     def generate_moves(self, game_map):
         """Public interface with bot runner
         """
         moves = []
         self.game_map = game_map
-        pdb.set_trace()
 
         self.tree = self.gen_quadtree(game_map)
 
@@ -179,18 +173,17 @@ class JZBot:
     def find_direction(self, src, dest):
         """Params can be Locations or Sites
         """
-        dx = dest.x - src.x
-        dy = dest.y - src.y
-        if abs(dx) > abs(dy):
-            if dx > 0:
-                return EAST
-            else:
-                return WEST
-        else:
-            if dy > 0:
-                return SOUTH
-            else:
-                return NORTH
+        angle = self.game_map.get_angle(src, dest)
+        if (-1/4 * math.pi) <= angle < (1/4 * math.pi):
+            return EAST
+        elif (1/4 * math.pi) <= angle < (3/4 * math.pi):
+            # this would normally be north, but y = 0 is at the top of the map
+            # and y = map height is at the bottom
+            return SOUTH
+        elif (3/4 * math.pi) <= angle or angle < (-3/4 * math.pi):
+            return WEST
+        elif (-3/4 * math.pi) <= angle < (-1/4 * math.pi):
+            return NORTH
 
     def is_stored_destination(self, location):
         return any(action.has_end(location) for action in self.last_actions)

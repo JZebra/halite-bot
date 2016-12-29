@@ -81,7 +81,7 @@ class GameMap:
             dy = self.height - dy
         return dx + dy
 
-    def getAngle(self, l1, l2):
+    def get_angle(self, l1, l2):
         dx = l2.x - l1.x
         dy = l2.y - l1.y
 

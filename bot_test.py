@@ -25,8 +25,7 @@ class JZBotTest(unittest.TestCase):
     def setUp(self):
         # init bot
         bot_id, m = self.init_bot_and_map()
-        self.bot = JZBot(bot_id)
-        self.game_map = m
+        self.bot = JZBot(bot_id, m)
 
         # make helper vars
         self.loc1 = Location(0, 0)
@@ -73,6 +72,7 @@ class JZBotTest(unittest.TestCase):
         self.assertEqual(self.bot.find_direction(loc2, loc1), SOUTH)
         self.assertEqual(self.bot.find_direction(loc1, loc3), WEST)
         self.assertEqual(self.bot.find_direction(loc3, loc1), EAST)
+
 
 if __name__ == '__main__':
     unittest.main()
