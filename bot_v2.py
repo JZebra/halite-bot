@@ -22,21 +22,21 @@ class TreeError(Exception):
 
 class JZBot:
 
-    def __init__(self, bot_id, game_map):
+    def __init__(self, bot_id):
         self.bot_id = bot_id
         self.neutral_id = 0
         self.str_cap = 255
         self.last_actions = []
+
+    def store_map(self, game_map):
         self.game_map = game_map
+        self.tree = self.gen_quadtree(game_map)
 
     def generate_moves(self, game_map):
         """Public interface with bot runner
         """
+        self.store_map(game_map)
         moves = []
-        self.game_map = game_map
-
-        self.tree = self.gen_quadtree(game_map)
-
         for y in range(self.game_map.height):
             for x in range(self.game_map.width):
                 location = Location(x, y)
@@ -157,7 +157,7 @@ class JZBot:
 
         # move up a level to look for targets
         for dest in node.parent.sites:
-            if not dest.is_friend():
+            if dest.is_enemy():
                 distance = self.game_map.getDistance(src, dest)
                 if distance < best_distance:
                     best_distance = distance
@@ -199,7 +199,7 @@ class JZBot:
             return True
 
     def gen_quadtree(self, game_map):
-        rect = 0, 0, game_map.width, game_map.height
+        rect = (0, 0, game_map.width, game_map.height)
         root = MapNode(None, rect, self.game_map)
         tree = MapTree(root, 1)
         return tree

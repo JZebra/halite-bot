@@ -5,7 +5,8 @@ from socket_networking import *
 
 my_id, game_map = getInit()
 sendInit("jz_02")
-bot = JZBot(my_id, game_map)
+bot = JZBot(my_id)
+bot.store_map(game_map)
 
 while True:
     moves = []

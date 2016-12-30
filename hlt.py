@@ -39,7 +39,7 @@ class Site:
         return self.x == other.x and self.y == other.y
 
     def __repr__(self):
-        return "location: {0}, {1}, owner: {2}".format(self.x, self.y, self.owner)
+        return "location: ({0}, {1}), owner: {2}".format(self.x, self.y, self.owner)
 
     def is_friend(self):
         return self.owner == self.bot_id
@@ -48,7 +48,7 @@ class Site:
         return self.owner == NEUTRAL_ID
 
     def is_enemy(self):
-        return self.owner != self.bot_id
+        return not self.is_friend() and not self.is_neutral()
 
 
 class Move:
