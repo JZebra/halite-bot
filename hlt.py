@@ -39,7 +39,7 @@ class Site:
         return self.x == other.x and self.y == other.y
 
     def __repr__(self):
-        return "{0}, {1}".format(self.x, self.y)
+        return "location: {0}, {1}, owner: {2}".format(self.x, self.y, self.owner)
 
     def is_friend(self):
         return self.owner == self.bot_id
@@ -58,7 +58,7 @@ class Move:
 
 
 class GameMap:
-    def __init__(self, width=0, height=0, numberOfPlayers=0, bot_id=None):
+    def __init__(self, width=0, height=0, num_players=0, bot_id=None):
         self.width = width
         self.height = height
         self.contents = []
