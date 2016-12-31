@@ -46,20 +46,22 @@ class JZBot:
         return moves
 
     def move(self, location):
+        src = self.game_map.getSite(location)
+
         # capture if possible
-        capture_move = self.capture(location)
+        capture_move = self.capture(src)
         if capture_move:
             return capture_move
 
         # farm if needed
-        if self.should_farm(location):
-            return Move(location, STILL)
+        if self.should_farm(src):
+            return Move(src, STILL)
 
-        return self.march(location)
+        return self.march(src)
 
-    def can_capture(self, src_site, dest_site):
-        if src_site.owner != dest_site.owner and\
-                src_site.strength > dest_site.strength:
+    def can_capture(self, src, dest):
+        if src.owner != dest.owner and\
+                src.strength > dest.strength:
             return True
         return False
 
@@ -70,37 +72,33 @@ class JZBot:
         site_strength = site.strength or 1
         return float(site.production) / float(site_strength)
 
-    def can_be_countered(self, src_loc, dest_loc):
+    def can_be_countered(self, src, dest):
         """Returns true if a capturing move can be countered
         """
-        src_site = self.game_map.getSite(src_loc)
-        dest_site = self.game_map.getSite(dest_loc)
-        next_str = src_site.strength - dest_site.strength
+        next_str = src.strength - dest.strength
         for direction in CARDINALS:
-            neighbor = self.game_map.getSite(src_loc, direction)
+            neighbor = self.game_map.getSite(src, direction)
             if neighbor.is_enemy():
                 enemy_next_str = neighbor.strength + neighbor.production
                 if next_str < enemy_next_str:
                     return True
         return False
 
-    def capture(self, location):
+    def capture(self, site):
         best_score = -1
         capture_dir = None
-        site = self.game_map.getSite(location)
 
         for direction in CARDINALS:
-            neighbor = self.game_map.getLocation(location, direction)
-            neighbor_site = self.game_map.getSite(location, direction)
-            if self.can_capture(site, neighbor_site) and not\
-                    self.can_be_countered(location, neighbor):
-                score = self.capture_score(neighbor_site)
+            neighbor = self.game_map.getSite(site, direction)
+            if self.can_capture(site, neighbor) and not\
+                    self.can_be_countered(site, neighbor):
+                score = self.capture_score(neighbor)
                 if score > best_score:
                     best_score = score
                     capture_dir = direction
 
         if capture_dir:
-            return Move(location, capture_dir)
+            return Move(site, capture_dir)
         else:
             return None
 
@@ -123,7 +121,6 @@ class JZBot:
             direction = self.find_direction(src, target)
             # don't commit suicide
             dest = self.game_map.getSite(src, direction)
-            print(dest)
             if not self.can_capture(src, dest):
                 direction = STILL
 
