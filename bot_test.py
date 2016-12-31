@@ -80,7 +80,39 @@ class JZBotTest(unittest.TestCase):
     def test_find_nearest_target(self):
         # m = self.bot.game_map
         starting_loc = Location(7, 15)
-        # starting_site = m.getSite(starting_loc)
         target = self.bot.find_nearest_target(starting_loc)
         self.assertEqual(target.x, 22)
         self.assertEqual(target.y, 0)
+
+    def test_march_no_target(self):
+        starting_loc = Location(7, 15)
+        src = self.bot.game_map.getSite(starting_loc)
+        with patch.object(self.bot, 'find_nearest_target') as mock_fnt:
+            # strong_dest = Site(x=0, y=0, strength=255)
+            # weak_dest = Site(x=0, y=0, strength=10)
+            mock_fnt.return_value = False
+            self.assertEqual(self.bot.march(src).direction, STILL)
+
+    def test_march_weak(self):
+        starting_loc = Location(7, 15)
+        src = self.bot.game_map.getSite(starting_loc)
+        print(src)
+        with patch.object(self.bot, 'find_nearest_target') as mock_fnt:
+            # get the site at x=7, y=14. One square above our src
+            dest = self.bot.game_map.contents[14][7]
+            # make the destination weak
+            dest.strength = 10
+            mock_fnt.return_value = dest
+            self.assertEqual(self.bot.march(src).direction, NORTH)
+
+    def test_march_strong(self):
+        starting_loc = Location(7, 15)
+        src = self.bot.game_map.getSite(starting_loc)
+        print(src)
+        with patch.object(self.bot, 'find_nearest_target') as mock_fnt:
+            # get the site at x=7, y=14. One square above our src
+            dest = self.bot.game_map.contents[14][7]
+            # make the destination strong
+            dest.strength = 255
+            mock_fnt.return_value = dest
+            self.assertEqual(self.bot.march(src).direction, STILL)

@@ -39,7 +39,8 @@ class Site:
         return self.x == other.x and self.y == other.y
 
     def __repr__(self):
-        return "location: ({0}, {1}), owner: {2}".format(self.x, self.y, self.owner)
+        return "location: ({0}, {1}), owner: {2}, str: {3}".format(
+            self.x, self.y, self.owner, self.strength)
 
     def is_friend(self):
         return self.owner == self.bot_id

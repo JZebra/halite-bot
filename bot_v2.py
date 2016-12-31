@@ -111,19 +111,21 @@ class JZBot:
     def march(self, src):
         """Determines a direction to move
         Params
-        src - Location object
+        src - Site object
 
         Returns
         move - Move object
         """
         target = self.find_nearest_target(src)
-        _log.info("target is {0}".format(repr(target)))
         if not target:
             direction = STILL
         else:
             direction = self.find_direction(src, target)
-
-        _log.info("direction is {0}".format(direction))
+            # don't commit suicide
+            dest = self.game_map.getSite(src, direction)
+            print(dest)
+            if not self.can_capture(src, dest):
+                direction = STILL
 
         # continue moving in the same direction if we marched before
         # for action in self.last_actions:
