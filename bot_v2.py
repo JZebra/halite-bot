@@ -60,10 +60,7 @@ class JZBot:
         return self.march(src)
 
     def can_capture(self, src, dest):
-        if src.owner != dest.owner and\
-                src.strength > dest.strength:
-            return True
-        return False
+        return src.strength > dest.strength
 
     def capture_score(self, site):
         """Site production is not correlated with strength
@@ -87,17 +84,24 @@ class JZBot:
     def capture(self, site):
         best_score = -1
         capture_dir = None
+        friend_count = 0
 
         for direction in CARDINALS:
             neighbor = self.game_map.getSite(site, direction)
-            if self.can_capture(site, neighbor) and not\
-                    self.can_be_countered(site, neighbor):
-                score = self.capture_score(neighbor)
-                if score > best_score:
-                    best_score = score
-                    capture_dir = direction
+            if neighbor.is_friend():
+                friend_count += 1
+            else:
+                if self.can_capture(site, neighbor) and not\
+                        self.can_be_countered(site, neighbor):
+                    score = self.capture_score(neighbor)
+                    if score > best_score:
+                        best_score = score
+                        capture_dir = direction
 
-        if capture_dir:
+        # deprioritize expanding in favor of marching
+        if friend_count > 2:
+            return None
+        elif capture_dir:
             return Move(site, capture_dir)
         else:
             return None
@@ -121,7 +125,7 @@ class JZBot:
             direction = self.find_direction(src, target)
             # don't commit suicide
             dest = self.game_map.getSite(src, direction)
-            if not self.can_capture(src, dest):
+            if not dest.is_friend() and not self.can_capture(src, dest):
                 direction = STILL
 
         # continue moving in the same direction if we marched before
