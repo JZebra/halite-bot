@@ -42,17 +42,6 @@ class JZBotTest(unittest.TestCase):
         self.action3 = (Action(self.loc3, self.loc1, self.direction))
         self.action4 = (Action(self.loc3, self.loc2, self.direction))
 
-    def test_store_new_action(self):
-        self.assertEqual(len(self.bot.last_actions), 0)
-        self.bot.store_action(self.action1)
-        self.assertEqual(len(self.bot.last_actions), 1)
-
-    def test_store_old_action(self):
-        self.assertEqual(len(self.bot.last_actions), 0)
-        self.bot.store_action(self.action1)
-        self.bot.store_action(self.action1)
-        self.assertEqual(len(self.bot.last_actions), 1)
-
     def test_find_direction_simple(self):
         loc1 = Location(2,2)
         loc2 = Location(2,4)

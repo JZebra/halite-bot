@@ -1,7 +1,6 @@
 import logging
 import pdb
 
-from action import Action
 from hlt import *
 from node import MapNode
 from tree import MapTree
@@ -26,7 +25,6 @@ class JZBot:
         self.bot_id = bot_id
         self.neutral_id = 0
         self.str_cap = 255
-        self.last_actions = []
 
     def store_map(self, game_map):
         self.game_map = game_map
@@ -127,22 +125,6 @@ class JZBot:
             dest = self.game_map.getSite(src, direction)
             if not dest.is_friend() and not self.can_capture(src, dest):
                 direction = STILL
-
-        # continue moving in the same direction if we marched before
-        # for action in self.last_actions:
-        #     if action.has_end(src):
-        #         direction = action.direction
-        #         self.last_actions.remove(action)
-        #         break
-
-        # # add to last_actions
-        # if not direction:
-        #     direction = self.direction_to_border(src)
-
-        # dest = self.game_map.getLocation(src, direction)
-        # action = Action(src, dest, direction)
-        # self.store_action(action)
-
         return Move(src, direction)
 
     def find_nearest_target(self, loc):
@@ -187,19 +169,6 @@ class JZBot:
             return WEST
         elif (-3/4 * math.pi) <= angle < (-1/4 * math.pi):
             return NORTH
-
-    def is_stored_destination(self, location):
-        return any(action.has_end(location) for action in self.last_actions)
-
-    def store_action(self, action):
-        """Returns False and does not store the action if the destination exists
-        in an existing action
-        """
-        if self.is_stored_destination(action.end):
-            return False
-        else:
-            self.last_actions.append(action)
-            return True
 
     def gen_quadtree(self, game_map):
         rect = (0, 0, game_map.width, game_map.height)
